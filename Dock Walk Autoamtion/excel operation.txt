@@ -1,0 +1,77 @@
+package DockWalk_TestAutomation.utilities;
+
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.DataFormatter;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Iterator;
+
+public class ExcelOperations {
+    public static String entryNum = "";
+    public static String importdate = "";
+
+    public static String getDatafromSheetBasedonTestCaseName(String sheetPath,String testCaseName) throws IOException {
+        String shipmentNumber = null;
+        FileInputStream fileInputStream = new FileInputStream(sheetPath);
+        XSSFWorkbook workBook = new XSSFWorkbook(fileInputStream);
+        XSSFSheet sheet = workBook.getSheet("testdata");
+        for(int count = 1;count<=sheet.getLastRowNum()-1;count++){
+            XSSFRow row = sheet.getRow(count);
+            if(row.getCell(0).getStringCellValue().equalsIgnoreCase(testCaseName)){
+                shipmentNumber = String.valueOf(row.getCell(1));
+                System.out.println("Shipment Numbers for Testing "+shipmentNumber);
+                if(row.getCell(2)!=null) {
+                    importdate = String.valueOf(row.getCell(2).getStringCellValue());
+                }
+                break;
+            }
+        }
+        workBook.close();
+        return shipmentNumber ;
+    }
+
+    public static String getDatafromSheetBasedonTestCaseNameBulkShipmentsFile(String sheetPath,String testCaseName) throws IOException {
+        String shipmentNumber = null;
+        FileInputStream fileInputStream = new FileInputStream(sheetPath);
+        XSSFWorkbook workBook = new XSSFWorkbook(fileInputStream);
+        XSSFSheet sheet = workBook.getSheet("Sheet1");
+        for(int count = 1;count<=sheet.getLastRowNum()-1;count++){
+            XSSFRow row = sheet.getRow(count);
+            if(row.getCell(0).getStringCellValue().equalsIgnoreCase(testCaseName)){
+                shipmentNumber = String.valueOf(row.getCell(1).getRawValue());
+                break;
+            }
+        }
+        workBook.close();
+        return shipmentNumber ;
+    }
+
+    public static void getEntryNumberfromFile(String EntryNumbersFile , String SheetName) throws IOException {
+        String reqStatus = "Not Used";
+        String UpdateStatus = "Used";
+        FileInputStream fis = new FileInputStream(EntryNumbersFile);
+        XSSFWorkbook workBook = new XSSFWorkbook(fis);
+        XSSFSheet sheet = workBook.getSheet(SheetName);
+        for(int count = 0;count<=sheet.getLastRowNum();count++){
+            XSSFRow row = sheet.getRow(count);
+            if(row.getCell(0).getStringCellValue().equalsIgnoreCase(reqStatus)){
+                entryNum = row.getCell(1).getStringCellValue();
+                System.out.println(entryNum);
+                sheet.getRow(count).getCell(0).setCellValue(UpdateStatus);
+                FileOutputStream fos = new FileOutputStream(EntryNumbersFile);
+                workBook.write(fos);
+                break;
+            }
+        }
+        workBook.close();
+        /*return entryNum;*/
+    }
+}

@@ -1,0 +1,188 @@
+package DockWalk_TestAutomation.glue.DockWalk;
+
+import DockWalk_TestAutomation.base.BaseClass;
+import DockWalk_TestAutomation.managers.AppiumDriverManager;
+import DockWalk_TestAutomation.pages.*;
+import DockWalk_TestAutomation.utilities.FilePath;
+import DockWalk_TestAutomation.utilities.screenshot;
+import io.cucumber.java.PendingException;
+import io.cucumber.java.en.Given;
+import io.cucumber.java.en.When;
+import io.cucumber.java.en.Then;
+import io.appium.java_client.AppiumDriver;
+import io.appium.java_client.windows.WindowsDriver;
+import org.junit.Assert;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
+import org.openqa.selenium.support.ui.WebDriverWait;
+//import org.seleniumhq.jetty9.server.UserIdentity;
+
+import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.util.List;
+import java.util.Properties;
+
+public class HH_stepdefiniton {
+
+	private final String propertyFilePath = FilePath.configFilePath;
+	private Properties properties;
+//	public static AppiumDriver driver = null;
+	public static AppiumDriver driver = AppiumDriverManager.driver;
+
+
+	@Given("^Login in to Handle Device$")
+	public void HHLogin() throws Throwable {
+		driver = AppiumDriverManager.CreateAppiumDriver();
+		HandleDevice HHdevice = new HandleDevice();
+		properties = BaseClass.PropertiesFIle(propertyFilePath);
+		HHdevice.login_HandleDevice(properties.getProperty("HHusername"),properties.getProperty("HHpassword"));
+	}
+
+	@Given("^Login in to handle device as non forklift user and choose sort$")
+	public void HHLoginChooseSortandForkliftNO() throws Throwable {
+		if( driver != null){
+			driver.launchApp();
+			System.out.println("Launching app");}
+
+		else {
+			System.out.println("Creating appium driver");
+			driver = AppiumDriverManager.CreateAppiumDriver();
+
+		}
+//		driver = AppiumDriverManager.CreateAppiumDriver();
+		HandleDevice HHdevice = new HandleDevice();
+		properties = BaseClass.PropertiesFIle(propertyFilePath);
+//		driver.activateApp("ECD_HH.QA");
+
+		HHdevice.login_HandleDevice(properties.getProperty("HHusername"),properties.getProperty("HHpassword"));
+		HHdevice.chooseSort(properties.getProperty("SORT"));
+		HHdevice.SelectForkLiftNo();
+		Thread.sleep(10000);
+		screenshot.AppiumCapture(driver, "Home screen - handle device");
+
+	}
+
+	@Then("^Validate Trailer No and door No in Handle device Assignment$")
+	public void validateAssignment() throws Throwable {
+		HandleDevice HHdevice = new HandleDevice();
+		HHdevice.validateAssignment();
+		screenshot.AppiumCapture(driver, "Home screen - handle device");
+	}
+
+	@Then("^Validate Trailer No and door No in Assignment and default load prompt$")
+	public void validateAssignment_and_default_load_prompt() throws Throwable {
+		HandleDevice HHdevice = new HandleDevice();
+		HHdevice.validateAssignment_withDefaultDoor();
+		screenshot.AppiumCapture(driver, "Result - handle device");
+	}
+
+
+	@Then("^Validate TBU TrailerNo In HH with sealNumber$")
+	public void validate_Tbu_trailerno_inHH() throws Throwable {
+		HandleDevice HHdevice = new HandleDevice();
+		HHdevice.Validate_tbu_Assigment();
+		screenshot.AppiumCapture(driver, "Result - handle device");
+	}
+
+//Dockworker starts an UL LH work assignment and unloads all the shipment to the proposed bay.
+
+	@Then("^Validate UnloadPros in Handle Device \"([^\"]*)\"$" )
+	public void validate_UnloadPros_HandleDevice(String Prono) throws Throwable {
+
+			HandleDevice HHdevice = new HandleDevice();
+			HHdevice.UnloadPros_InHandleDevice();
+
+			System.out.println("No trailer found");
+		screenshot.AppiumCapture(driver, "Result - handle device");
+
+
+	}
+//tc13_Supervisor assigns an unloading work assignment for a TBU LH trailer.
+
+	@Then("^Unload pros To Bay in Handle Device$")
+	public void Unload_Citypros_To_Bay_in_Handle_Device() throws Throwable {
+		HandleDevice HHdevice = new HandleDevice();
+		HHdevice.Unload_Citypros_To_Bay();
+		screenshot.AppiumCapture(driver, "Result - handle device");
+
+	}
+
+	@Then("^Validate Uloading Activity in Handle Device$")
+	public void validate_Uloading_Activity_in_HandleDevice() throws Throwable {
+		HandleDevice HHdevice = new HandleDevice();
+		WebDriverWait wait = new WebDriverWait(driver,15);
+		try {
+			wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//android.view.ViewGroup/android.widget.Button[@text='ACKNOWLEDGE']"))).click();
+		}catch(Exception e){
+			System.out.println("No Ackowledge before screenshot");
+		}
+		Thread. sleep(2000);
+		screenshot.AppiumCapture(driver, "Result - handle device");
+	}
+	@Then("^Validate Trailer number and Open Trailer Number$")
+	public void validate_Trailer_OpenTrailer() throws Throwable {
+		HandleDevice HHdevice = new HandleDevice();
+		HHdevice.ValidateTrailer_OpenTrailer();
+		screenshot.AppiumCapture(driver, "Result - handle device");
+	}
+
+
+
+	//TC19_Dockworker gets empty trailer inspection after unloading last HU from UL city trailer and completes it. Trailer is marked as empty.
+	@Then("^Validate ULCITY TrailerNo In HH And Unload all pros$")
+	public void validate_ULCITY_trailerno_inHH() throws Throwable {
+
+			HandleDevice HHdevice = new HandleDevice();
+			//HHdevice.Validate_ULCityTrailer_Assigment();
+			HHdevice.UnloadPros_InHandleDevice();
+		screenshot.AppiumCapture(driver, "Result - handle device");
+
+	}
+
+	@Then("^Validate Insepection Tab in HH Device$")
+	public  void Validate_Insepection_tabe_in_HHDevices() throws InterruptedException {
+//		try{
+			HandleDevice HHdevice = new HandleDevice();
+			HHdevice.Validate_Inspection_AfterUploadedPro();
+		screenshot.AppiumCapture(driver, " screen - handle device");
+//		}catch (Exception e){}
+	}
+
+	//tc21
+	@Then("^Dockworker will scan the pro to assign loading trailer \"([^\"]*)\" \"([^\"]*)\"$")
+	public void Dockworker_loadingpros_into_Lo(String pron,String doorNo) throws Throwable {
+
+		HandleDevice HHdevice = new HandleDevice();
+		HHdevice.loadingPros_InHandleDevice();
+		screenshot.AppiumCapture(driver, "Result - handle device");
+	}
+	@Then("^Dockworker will load all pro from bay to loading$")
+	public void Dockworker_baytoloading() throws Throwable {
+
+		HandleDevice HHdevice = new HandleDevice();
+		HHdevice.bayt_to_loading();
+		screenshot.AppiumCapture(driver, "Result - handle device");
+	}
+
+	//tc28
+	@Then("^Dockworker will load the shipment from trailer manifest \"([^\"]*)\" \"([^\"]*)\"$")
+	public void Dockworker_will_load_the_shipment_from_trailer_manifest(String pron,String doorNo) throws Throwable {
+//	try{
+		HandleDevice HHdevice = new HandleDevice();
+		HHdevice.Dockworker_Load_shipement_from_Trailemanifest();
+		screenshot.AppiumCapture(driver, "Result - handle device");
+//	}catch (Exception e){
+		System.out.println("Prono number not found");
+//	}
+
+
+	}
+
+
+
+
+}

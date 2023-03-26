@@ -1,0 +1,811 @@
+package DockWalk_TestAutomation.pages;
+
+import DockWalk_TestAutomation.Report.Log;
+import DockWalk_TestAutomation.base.BaseClass;
+import DockWalk_TestAutomation.managers.AppiumDriverManager;
+import DockWalk_TestAutomation.utilities.FilePath;
+import io.appium.java_client.AppiumDriver;
+import io.appium.java_client.MobileElement;
+import io.appium.java_client.TouchAction;
+import io.appium.java_client.touch.WaitOptions;
+import io.appium.java_client.touch.offset.PointOption;
+import io.cucumber.java.an.E;
+import org.apache.commons.math3.analysis.function.Exp;
+import org.junit.Assert;
+import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.interactions.touch.TouchActions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.time.Duration;
+import java.util.List;
+import java.util.Properties;
+import java.util.concurrent.TimeUnit;
+
+
+public class HandleDevice {
+    private final String propertyFilePath = FilePath.configFilePath;
+    private Properties properties;
+    public static AppiumDriver driver = AppiumDriverManager.driver;
+    //Login Page Objects
+    public static String locationAllowXpath = "//android.widget.Button[@text='ALLOW']";
+    public static String btnsignIn1Xpath = "//android.widget.Button[@text='SIGN IN']";
+    public static String txbxusernamebyclsname = "android.widget.EditText";
+    public static String txbxpasswordbyclsname = "android.widget.EditText";
+    public static String btnsignIn2clsname= "android.widget.Button";
+    //Forklift selection
+    public static String btnNobyXpath = "//android.widget.Button[@text='NO']";
+    public static  String XPATHNOFORKLIFT ="//android.widget.Button[@text='NO FORKLIFT']";
+    String usedTrailerNO =   YardManagement_Page.usedTrailerNO;
+    //
+//    public void login_HandleDevice (String USERID, String PASSWORD) throws Throwable {
+//              WebDriverWait wait = new WebDriverWait(driver,120);
+//
+//        boolean locationPopUp = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(locationAllowXpath))).isDisplayed();
+//
+//        if (locationPopUp) {
+//            driver.findElement(By.xpath(locationAllowXpath)).click();
+//        }
+    public void login_HandleDevice (String USERID, String PASSWORD) throws Throwable {
+        WebDriverWait wait = new WebDriverWait(driver,60);
+        try {
+            boolean locationPopUp = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(locationAllowXpath))).isDisplayed();
+
+
+
+            if (locationPopUp) {
+                driver.findElement(By.xpath(locationAllowXpath)).click();
+            }
+        }
+        catch(Exception e)
+        {
+            System.out.println("Allow button is not displayed");
+            Thread.sleep(2000);
+        }
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(btnsignIn1Xpath)));
+        driver.findElement(By.className(txbxusernamebyclsname)).sendKeys(USERID);
+        Thread.sleep(1000);
+        driver.findElementByXPath(btnsignIn1Xpath).click();
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//android.widget.Button[contains(@text,'"+USERID+"@ups.com')]"))).click();
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.className(txbxpasswordbyclsname))).sendKeys(PASSWORD);
+        Thread.sleep(3000);
+        driver.findElementByClassName(btnsignIn2clsname).click();
+    }
+    public void chooseSort(String SORT) throws Exception {
+        WebDriverWait wait = new WebDriverWait(driver,40);
+        try{
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//android.widget.Button[contains(@text,'" + SORT + "')]")));
+//            driver.findElement(By.xpath("//android.widget.Button[contains(@text,'" + SORT + "')]")).isDisplayed();
+            driver.findElement(By.xpath("//android.widget.Button[contains(@text,'" + SORT + "')]")).click();
+        }
+        catch(Exception e)
+        {
+                System.out.println("Sort screen is not displayed");
+            Thread.sleep(2000);
+        }
+
+
+    }
+    public void SelectForkLiftNo() throws InterruptedException {
+        WebDriverWait wait = new WebDriverWait(driver,40);
+        ActKnowledgementButton();
+        try {
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(XPATHNOFORKLIFT)));
+            driver.findElementByXPath(XPATHNOFORKLIFT).click();
+        }catch (Exception e) {
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(btnNobyXpath)));
+            driver.findElementByXPath(btnNobyXpath).click();
+        }
+        Thread.sleep(3000);
+        ActKnowledgementButton();
+    }
+    public void validateAssignment() throws InterruptedException {
+        WebDriverWait wait = new WebDriverWait(driver,20);
+        YardManagement_Page yardManagement_page = new YardManagement_Page();
+//        String UsedTrailerNO = yardManagement_page.Search_TrailerNo_doorNo_JockeyIn
+//        String TBUTrailer = th.PickUp_TrailerNo_YardLocation.;
+        System.out.println("++++++++++++++++++++++++++++++++++++++");
+        String usedTrailerNO = yardManagement_page.usedTrailerNO;
+        String doorNO = yardManagement_page.doorNO;
+        System.out.println(usedTrailerNO);
+        System.out.println(doorNO);
+        ActKnowledgementButton();
+        // wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//android.widget.TextView[contains(@text,'" + usedTrailerNO + "')]")));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//android.widget.TextView[contains(@text,'" + usedTrailerNO + "')]")));
+        String ActualTrailerNO = driver.findElement(By.xpath("//android.widget.TextView[contains(@text,'" + usedTrailerNO + "')]")).getText();
+        System.out.println("================= " + ActualTrailerNO + "+++++++++++++++++++++++");
+        Assert.assertTrue("Trailer No is displaying as expected", ActualTrailerNO.contains(usedTrailerNO));
+        ActKnowledgementButton();
+      WebElement trailerhh=  driver.findElement(By.xpath("//android.widget.TextView[contains(@text,'" + usedTrailerNO + "')]"));
+      trailerhh.click();
+      try{
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//android.widget.Button[@text='OK']"))).click();
+        }catch (Exception e){}
+        try{
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//android.widget.Button[@text='YES']"))).click();
+        }catch (Exception e){}
+
+        ActKnowledgementButton();
+
+//        try {
+//            wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("(//android.widget.EditText)[1]"))).sendKeys("FENCE");
+//            wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("(//android.widget.EditText)[3]"))).sendKeys("1");
+//        }catch (Exception e){}
+
+        //CLicking on Hook
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//android.widget.Button[@text='HOOK']"))).click();
+        //CLicking on Complete
+        Log.info("HOOK BUTTON");
+        try {
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("(//android.widget.EditText)[2]"))).sendKeys(Keys.DOWN,Keys.ENTER);
+            Log.info("SELECT BUTTON");
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("(//android.widget.EditText)[3]"))).sendKeys(Keys.DOWN,Keys.ENTER);
+        }catch (Exception e){}
+        try{
+            driver.findElement(By.xpath("//android.widget.TextView[@text='Empty']")).click();
+        }catch (Exception e){}
+        try{
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//android.widget.Button[@text='OK']"))).click();
+        }catch (Exception e){}
+       // Thread.sleep(5000);
+        ActKnowledgementButton();
+
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//android.widget.Button[@text='COMPLETE']"))).click();
+        //Validating Assignment is disappeared
+        Thread.sleep(5000);
+        try{
+            driver.findElement(By.xpath("//android.widget.TextView[@text='Empty']")).click();
+        }catch (Exception e){}
+
+        Thread.sleep(15000);
+        ActKnowledgementButton();
+        List elements = driver.findElements(By.xpath("//android.widget.TextView[contains(@text,'" + usedTrailerNO + "')]"));
+        Assert.assertEquals(0,elements.size());
+//fdm
+    }
+
+    public void validateAssignment_withDefaultDoor() throws InterruptedException {
+        WebDriverWait wait = new WebDriverWait(driver,15);
+        YardManagement_Page yardManagement_page = new YardManagement_Page();
+        System.out.println("++++++++++++++++++++++++++++++++++++++");
+        String usedTrailerNO = yardManagement_page.usedTrailerNO;
+        String doorNO = yardManagement_page.doorNO;
+        System.out.println("++++++++++++++++++++++++++++++++++++++");
+        System.out.println(usedTrailerNO);
+        System.out.println("++++++++++++++++++++++++++++++++++++++");
+        System.out.println(doorNO);
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//android.widget.TextView[contains(@text,'" + usedTrailerNO + "')]")));
+        String ActualTrailerNO = driver.findElement(By.xpath("//android.widget.TextView[contains(@text,'" + usedTrailerNO + "')]")).getText();
+        System.out.println("Actual Trailer NO " + ActualTrailerNO + "");
+        Assert.assertTrue("Trailer No is displaying as expected", ActualTrailerNO.contains(usedTrailerNO));
+        driver.findElement(By.xpath("//android.widget.TextView[contains(@text,'" + usedTrailerNO + "')]")).click();
+        //CLicking on Hook
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//android.widget.Button[@text='HOOK']"))).click();
+        //CLicking on Complete
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//android.widget.Button[@text='COMPLETE']"))).click();
+        Thread.sleep(5000);
+        //Validate the Alert message
+        String ExpectedMsg = "The Default plan for this door loads to:";
+        String AlertMsg = driver.findElement(By.xpath("//android.widget.TextView[contains(@text,'" + ExpectedMsg + "')]")).getText();
+        System.out.println(AlertMsg);
+        Assert.assertTrue(AlertMsg.contains(ExpectedMsg));
+        //CLicking on the YES
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//android.widget.Button[@text='YES']"))).click();
+
+        //Validating Assignment is disappeared
+        Thread.sleep(10000);
+        List elements = driver.findElements(By.xpath("//android.widget.TextView[contains(@text,'" + usedTrailerNO + "')]"));
+        Assert.assertEquals(0,elements.size());
+    }
+    //Supervisor assigns an unloading work assignment for a TBU city trailer.@Dorababu
+    //--hh device--
+    public void Validate_tbu_Assigment() throws InterruptedException {
+        WebDriverWait wait = new WebDriverWait(driver,15);
+        YardManagement_Page yardManagement_page = new YardManagement_Page();
+        System.out.println("++++++++++++++++++++++++++++++++++++++");
+        String usedTrailerNO = YardManagement_Page.usedTrailerNO;
+        String doorNO = YardManagement_Page.doorNO;
+        System.out.println(usedTrailerNO);
+        Thread.sleep(4000);
+        try {
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//android.view.ViewGroup/android.widget.Button[@text='ACKNOWLEDGE']"))).click();
+        }catch(Exception e){
+            System.out.println("No Ackowledge");
+        }
+        System.out.println(doorNO);
+        Thread.sleep(2000);
+        driver.findElement(By.xpath("//android.widget.TextView[contains(@text,'" + usedTrailerNO + "')]")).click();
+        Thread.sleep(2000);
+        driver.findElement(By.xpath("//android.widget.TextView[@text='000 Bay']")).click();
+        Thread.sleep(2000);
+        driver.findElement(By.className(txbxusernamebyclsname)).sendKeys(YardManagement_Page.sealNo);
+        System.out.println(YardManagement_Page.sealNo);
+        Thread.sleep(2000);
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//android.widget.Button[@text='OPEN']"))).click();
+        Thread.sleep(2000);
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//android.widget.Button[@text='START']"))).click();
+    }
+
+//Dockworker starts an UL LH work assignment and unloads all the shipment to the proposed bay.
+
+    public void UnloadPros_InHandleDevice() throws InterruptedException {
+        driver.manage().timeouts().implicitlyWait(30,TimeUnit.SECONDS);
+        WebDriverWait wait = new WebDriverWait(driver,15);
+        YardManagement_Page yardManagement_page = new YardManagement_Page();
+        System.out.println("++++++++++++++++++++++++++++++++++++++");
+        String usedTrailer =   YardManagement_Page.usedTrailerNO;
+        String doorNO = YardManagement_Page.doorNO;
+        String ProNO= yardManagement_page.proNo;
+        HandleDevice h = new HandleDevice();
+        ActKnowledgementButton();
+        ActKnowledgementButton();
+        System.out.println(usedTrailer);
+        Thread. sleep(2000);
+        try{
+            driver.findElement(By.xpath("//android.widget.TextView[contains(@text,'" + usedTrailer + "')]")).click();
+        }catch (Exception e){
+            //  driver.findElement(By.xpath("(//android.widget.TextView[contains(@text,'" + usedTrailer + "')])[1]")).click();
+            int intStartY = 1500;
+            scrollTo(intStartY,intStartY+300);
+            driver.findElement(By.xpath("//android.widget.TextView[contains(@text,'" + usedTrailer + "')]")).click();
+        }
+        Thread.sleep(1000);
+        ActKnowledgementButton();
+        try {
+            driver.findElement(By.xpath("//android.widget.Button[@text='START']")).click();
+            Thread.sleep(1000);
+        }catch (Exception e){ }
+        try{
+            driver.findElement(By.xpath("//android.widget.Button[@text='YES']")).click();
+        }catch (Exception e) {}
+        try {
+            driver.findElement(By.xpath("//android.widget.Button[@text='CONTINUE WORKING']")).click();
+        }catch (Exception e){}
+        ActKnowledgementButton();
+        Thread.sleep(500);
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//android.widget.EditText[@text='Scan PRO']"))).sendKeys(ProNO);
+        Thread.sleep(500);
+        ActKnowledgementButton();
+        driver.findElement(By.xpath("(//android.widget.Button[@text='GO'])[2]")).click();
+        Thread.sleep(1000);
+            try{
+                driver.findElement(By.xpath("//android.widget.Button[@text='YES']")).click();
+            }catch (Exception e) {
+            }
+        Thread.sleep(1000);
+//        try {
+//            driver.findElement(By.xpath("//android.widget.Button[@text='DONE']")).click();
+//            Thread.sleep(1000);
+//        }catch (Exception e){}
+        try{
+            driver.findElement(By.xpath("//android.widget.Button[@text='OK']")).click();
+        }catch (Exception e) {
+        }
+        try {
+            driver.findElement(By.xpath("//android.view.ViewGroup[1]/android.view.ViewGroup/android.widget.FrameLayout[3]")).click();
+            Thread.sleep(1000);
+        }catch (Exception e){
+            System.out.println("no button 1");
+        }
+        try {
+            driver.findElement(By.xpath("//android.view.ViewGroup[1]/android.view.ViewGroup/android.widget.FrameLayout[3]")).click();
+            Thread.sleep(1000);
+        }catch (Exception e){
+            System.out.println("no button 2");
+        }
+        try {
+       driver.findElement(By.xpath("//android.view.ViewGroup[2]/android.view.ViewGroup/android.widget.FrameLayout[3]")).click();
+        Thread.sleep(500);
+        }catch (Exception e){
+            System.out.println("no button 3");
+        }
+        try {
+            driver.findElement(By.xpath("//android.view.ViewGroup[2]/android.view.ViewGroup/android.widget.FrameLayout[3]")).click();
+            Thread.sleep(500);
+        }catch (Exception e){
+            System.out.println("no button 3");
+        }
+
+        try {
+            driver.findElement(By.xpath("//android.widget.Button[@text='DONE']")).click();
+            Thread.sleep(500);
+        }catch (Exception e){
+            System.out.println("no DONE button 4 ");
+        }
+        try{
+            driver.findElement(By.xpath("//android.widget.Button[@text='YES']")).click();
+        }catch (Exception e) {
+        }
+        ActKnowledgementButton();
+        Thread.sleep(500);
+        try {
+            driver.findElement(By.xpath("//android.widget.Button[@text='OK']")).click();
+            Thread.sleep(500);
+        }catch (Exception e){
+            System.out.println("no button 5");
+        }
+
+        try {
+            driver.findElement(By.xpath("//android.widget.Button[@text='VIEW BARCODE']")).click();
+        }catch (Exception e){}
+        Thread.sleep(500);
+        try{
+
+            driver.findElement(By.xpath("//android.widget.Button[@text='DONE']")).click();
+        }catch (Exception e){
+            System.out.println("No Continue button 7");
+        }
+        Thread.sleep(500);
+        try{
+            driver.findElement(By.xpath("//android.widget.Button[@text='OK']")).click();
+        }catch (Exception e){
+            System.out.println("No Continue button 8");
+        }
+
+        try {
+            String baynumber=   driver.findElement(By.xpath("(//android.widget.Button[contains(@text,'BAY')])[3]")).getText();
+            Thread.sleep(2000);
+            driver.findElement(By.xpath("(//android.widget.Button[contains(@text,'BAY')])[3]")).click();
+            System.out.println(baynumber);
+            Thread.sleep(2000);
+            yardManagement_page.MOvedDoor =baynumber;
+        }
+        catch (Exception e){ }
+        try {
+            String baynumber=   driver.findElement(By.xpath("(//android.widget.Button[contains(@text,'BAY')])[2]")).getText();
+            Thread.sleep(2000);
+            driver.findElement(By.xpath("(//android.widget.Button[contains(@text,'BAY')])[2]")).click();
+            System.out.println(baynumber);
+            Thread.sleep(2000);
+            yardManagement_page.MOvedDoor =baynumber;
+        }catch (Exception e){}
+    }
+
+    //tc13_Supervisor assigns an unloading work assignment for a TBU LH trailer.
+
+    public void Validate_trailerNumber_in_HH() throws InterruptedException {
+
+        WebDriverWait wait = new WebDriverWait(driver,10);
+        YardManagement_Page yardManagement_page = new YardManagement_Page();
+        System.out.println("++++++++++++++++++++++++++++++++++++++");
+        String usedTrailerNO =   YardManagement_Page.usedTrailerNO;
+        // String doorNO = "029"; //
+        String doorNO = YardManagement_Page.doorNO;
+        String ProNO =yardManagement_page.proNo;
+
+
+        try {
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//android.view.ViewGroup/android.widget.Button[@text='ACKNOWLEDGE']")));
+            WebElement ackownlege=  driver.findElement(By.xpath("//android.view.ViewGroup/android.widget.Button[@text='ACKNOWLEDGE']"));
+            Actions a  = new Actions(driver);
+            a.click(ackownlege).perform();
+        }catch(Exception e){
+            System.out.println("No Ackowledge");
+        }
+
+        Thread.sleep(5000);
+//        boolean acknowledge = driver.findElement(By.xpath("//android.view.ViewGroup/android.widget.Button[@text='ACKNOWLEDGE'])").;
+        //android.view.ViewGroup/android.widget.Button[@text='ACKNOWLEDGE']
+
+        while(isElementPresent(By.xpath("//android.view.ViewGroup/android.widget.Button[@text='ACKNOWLEDGE']"))) {
+            driver.findElement(By.xpath("//android.view.ViewGroup/android.widget.Button[@text='ACKNOWLEDGE']")).click();
+            Thread.sleep(5000);
+        }
+        Thread.sleep(20000);
+        //   System.out.println(HHtrailerno);
+        String HHtrailerno = driver.findElement(By.xpath("//android.widget.TextView[contains(@text,'" + usedTrailerNO + "')]")).getText();
+        Assert.assertTrue(true);
+        System.out.println(HHtrailerno);
+        HHtrailerno = HHtrailerno.replaceAll("[\\(\\)\\[\\]\\{\\}]","");
+        System.out.println(HHtrailerno);
+        Assert.assertTrue(HHtrailerno.contains(usedTrailerNO));
+    }
+
+    //TC19_Dockworker gets empty trailer inspection after unloading last HU from UL city trailer and completes it. Trailer is marked as empty.
+    public  void Validate_ULCityTrailer_Assigment() throws InterruptedException {
+        WebDriverWait wait = new WebDriverWait(driver,15);
+        YardManagement_Page yardManagement_page = new YardManagement_Page();
+        System.out.println("++++++++++++++++++++++++++++++++++++++");
+        String usedTrailerNO =  YardManagement_Page.usedTrailerNO;
+//            String doorNO = "184"; //
+        String doorNO = YardManagement_Page.doorNO;
+        //String ProNO =yardManagement_page.proNo;
+        try {
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//android.view.ViewGroup/android.widget.Button[@text='ACKNOWLEDGE']"))).click();
+        }catch(Exception e){
+            System.out.println("No Ackowledge");
+        }
+        //   System.out.println(doorNO);
+        Thread. sleep(2000);
+        driver.findElement(By.xpath("//android.widget.TextView[contains(@text,'" + usedTrailerNO + "')]")).click();
+        Thread.sleep(2000);
+    }
+
+    public void  Validate_Inspection_AfterUploadedPro() throws InterruptedException {
+
+        driver.manage().timeouts().implicitlyWait(20,TimeUnit.SECONDS);
+        WebDriverWait wait = new WebDriverWait(driver,15);
+        try{
+            driver.findElement(By.xpath("//android.widget.Button[@text='YES']")).click();
+        }catch(Exception e){}
+        try {
+            driver.findElement(By.xpath("//android.widget.Button[@text='YES']")).click();
+        }catch(Exception e){
+            System.out.println("No Ackowledge");
+        }
+        Thread.sleep(1000);
+        try {
+            driver.findElement(By.xpath("(//android.widget.Button[contains(@text,'BAY')])[3]")).click();
+        }catch (Exception e){}
+
+        Thread.sleep(1000);
+        try{
+            driver.findElement(By.xpath("//android.widget.Button[@text='YES']")).click();
+        }catch (Exception e){}
+
+        try {
+            wait.until(ExpectedConditions.elementToBeClickable(By.xpath("(//android.view.ViewGroup/android.widget.FrameLayout/android.view.ViewGroup/android.view.ViewGroup/android.widget.ImageView[1])[1]"))).click();
+            wait.until(ExpectedConditions.elementToBeClickable(By.xpath("(//android.view.ViewGroup/android.widget.FrameLayout/android.view.ViewGroup/android.view.ViewGroup/android.widget.ImageView[1])[2]"))).click();
+            wait.until(ExpectedConditions.elementToBeClickable(By.xpath("(//android.view.ViewGroup/android.widget.FrameLayout/android.view.ViewGroup/android.view.ViewGroup/android.widget.ImageView[1])[3]"))).click();
+        }catch (Exception e){}
+        driver.findElement(By.xpath("//android.widget.Button[@text='DONE']")).click();
+        }
+
+
+
+
+    public void loadingPros_InHandleDevice() throws InterruptedException {
+
+        WebDriverWait wait = new WebDriverWait(driver,15);
+        YardManagement_Page yardManagement_page = new YardManagement_Page();
+        System.out.println("++++++++++++++++++++++++++++++++++++++");
+        String usedTrailer =   YardManagement_Page.usedTrailerNO;
+     //   String doorNO = YardManagement_Page.doorNO;
+        String ProNO= yardManagement_page.proNo;
+        HandleDevice h = new HandleDevice();
+        ActKnowledgementButton();
+        ActKnowledgementButton();
+        System.out.println(usedTrailer);
+        Thread. sleep(2000);
+        try{
+            driver.findElement(By.xpath("//android.widget.TextView[contains(@text,'" + usedTrailer + "')]")).click();
+        }catch (Exception e){
+         //  driver.findElement(By.xpath("(//android.widget.TextView[contains(@text,'" + usedTrailer + "')])[1]")).click();
+            int intStartY = 1500;
+            scrollTo(intStartY,intStartY+300);
+            driver.findElement(By.xpath("//android.widget.TextView[contains(@text,'" + usedTrailer + "')]")).click();
+        }
+        Thread.sleep(2000);
+        ActKnowledgementButton();
+        try {
+            driver.findElement(By.xpath("//android.widget.Button[@text='START']")).click();
+            Thread.sleep(2000);
+        }catch (Exception e){ }
+        try{
+            driver.findElement(By.xpath("//android.widget.Button[@text='YES']")).click();
+        }catch (Exception e) {}
+        try {
+            driver.findElement(By.xpath("//android.widget.Button[@text='CONTINUE WORKING']")).click();
+        }catch (Exception e){}
+        ActKnowledgementButton();
+        Thread.sleep(500);
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//android.widget.EditText[@text='Scan PRO']"))).sendKeys(ProNO);
+        Thread.sleep(500);
+        ActKnowledgementButton();
+        driver.findElement(By.xpath("(//android.widget.Button[@text='GO'])[2]")).click();
+        Thread.sleep(1000);
+        try{
+            driver.findElement(By.xpath("//android.widget.Button[@text='YES']")).click();
+        }catch (Exception e) {
+        }
+        try {
+            driver.findElement(By.xpath("//android.widget.Button[@text='DONE']")).click();
+            Thread.sleep(1000);
+        }catch (Exception e){
+            System.out.println("no DONE button");
+        }
+        try{
+            driver.findElement(By.xpath("//android.widget.Button[@text='VIEW BARCODE']")).click();
+        }catch (Exception e) {}
+        Thread.sleep(1000);
+        try {
+            driver.findElement(By.xpath("//android.view.ViewGroup[1]/android.view.ViewGroup/android.widget.FrameLayout[3]")).click();
+            Thread.sleep(1000);
+        }catch (Exception e){
+            System.out.println("no button");
+        }
+        try {
+            driver.findElement(By.xpath("//android.view.ViewGroup[1]/android.view.ViewGroup/android.widget.FrameLayout[3]")).click();
+            Thread.sleep(1000);
+        }catch (Exception e){
+            System.out.println("no button");
+        }
+        try {
+            driver.findElement(By.xpath("//android.view.ViewGroup[2]/android.view.ViewGroup/android.widget.FrameLayout[3]")).click();
+            Thread.sleep(1000);
+        }catch (Exception e){
+            System.out.println("no button");
+        }
+        try {
+            driver.findElement(By.xpath("//android.widget.Button[@text='DONE']")).click();
+            Thread.sleep(1000);
+        }catch (Exception e){
+            System.out.println("no DONE button");
+        }
+        ActKnowledgementButton();
+        Thread.sleep(1000);
+        try {
+            driver.findElement(By.xpath("//android.widget.Button[@text='OK']")).click();
+            Thread.sleep(1000);
+        }catch (Exception e){
+            System.out.println("no button");
+        }
+        try {
+            driver.findElement(By.xpath("//android.widget.Button[@text='OK']")).click();
+            Thread.sleep(1000);
+        }catch (Exception e){
+            System.out.println("no button");
+        }
+        try{
+            //  driver.findElement(By.xpath("//android.widget.Button[@text='VIEW BARCODE']")).click();
+            driver.findElement(By.xpath("//android.widget.Button[@text='DONE']")).click();
+        }catch (Exception e){
+            System.out.println("No Continue button");
+        }
+        Thread.sleep(1000);
+        try{
+            driver.findElement(By.xpath("//android.widget.Button[@text='OK']")).click();
+        }catch (Exception e){
+            System.out.println("No Continue button");
+        }
+
+        try {
+            String baynumber=   driver.findElement(By.xpath("(//android.view.ViewGroup//android.widget.Button)[11]")).getText();
+            driver.findElement(By.xpath("(//android.view.ViewGroup//android.widget.Button)[11]")).click();
+            System.out.println(baynumber);
+            yardManagement_page.MOvedDoor =baynumber;
+        }
+        catch (Exception e){}
+
+    }
+    public  void bayt_to_loading() throws InterruptedException {
+        driver.manage().timeouts().implicitlyWait(20,TimeUnit.SECONDS);
+        try {
+            driver.findElement(By.xpath("(//android.widget.CheckBox)[1]")).click();
+            Thread.sleep(1000);
+            driver.findElement(By.xpath("(//android.widget.CheckBox)[2]")).click();
+            Thread.sleep(1000);
+            driver.findElement(By.xpath("(//android.widget.CheckBox)[3]")).click();
+            Thread.sleep(2000);
+            driver.findElement(By.xpath("//android.widget.Button[@text='DONE']")).click();
+            Thread.sleep(5000);
+        }catch (Exception e){}
+
+        driver.findElement(By.xpath("//android.widget.FrameLayout[3]/android.view.ViewGroup/android.widget.FrameLayout[1]/android.view.ViewGroup/android.view.ViewGroup[1]/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup[2]/android.widget.TextView")).click();
+        Thread.sleep(1000);
+        driver.findElement(By.xpath("//android.widget.FrameLayout[3]/android.view.ViewGroup/android.widget.FrameLayout[1]/android.view.ViewGroup/android.view.ViewGroup[2]/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup[2]/android.widget.TextView")).click();
+        Thread.sleep(1000);
+        driver.findElement(By.xpath("//android.widget.FrameLayout[3]/android.view.ViewGroup/android.widget.FrameLayout[1]/android.view.ViewGroup/android.view.ViewGroup[3]/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup[2]/android.widget.TextView")).click();
+       Thread.sleep(1000);
+        driver.findElement(By.xpath("//android.widget.Button[@text='DONE']")).click();
+    }
+
+
+    public void scrollToBase(int startX,int intStartY,int endX,int intEndY)
+    {
+        TouchAction<?> action = new TouchAction<>(driver);
+        action.press(PointOption.point(startX, intEndY))
+                .waitAction(WaitOptions.waitOptions(Duration.ofSeconds(1)))
+                .moveTo(PointOption.point(endX, intStartY))
+                .release()
+                .perform();
+    }
+
+    public void scrollTo(int intStartY,int intEndY) {
+        scrollToBase(200, intStartY, 200, intEndY);
+    }
+
+
+    public void Unload_Citypros_To_Bay() throws InterruptedException {
+        YardManagement_Page yardManagement_page = new YardManagement_Page();
+        driver.manage().timeouts().implicitlyWait(20,TimeUnit.SECONDS);
+        try {
+            String baynumber=   driver.findElement(By.xpath("(//android.widget.Button[contains(@text,'BAY')])[3]")).getText();
+            Thread.sleep(2000);
+            driver.findElement(By.xpath("(//android.widget.Button[contains(@text,'BAY')])[3]")).click();
+            System.out.println(baynumber);
+            Thread.sleep(2000);
+            yardManagement_page.MOvedDoor =baynumber;
+        }
+        catch (Exception e){ }
+        String baynumber=   driver.findElement(By.xpath("(//android.widget.Button[contains(@text,'BAY')])[2]")).getText();
+        Thread.sleep(2000);
+        driver.findElement(By.xpath("(//android.widget.Button[contains(@text,'BAY')])[2]")).click();
+        System.out.println(baynumber);
+        Thread.sleep(2000);
+        yardManagement_page.MOvedDoor =baynumber;
+
+
+
+    }
+
+
+    public void ScrollDown(){
+        driver.manage().timeouts().implicitlyWait(30,TimeUnit.SECONDS);
+        WebDriverWait wait = new WebDriverWait(driver, 30);
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//android.widget.TextView[@text='FROM']")));
+
+        WebElement from =driver.findElement(By.xpath("//android.widget.TextView[@text='FROM']"));
+        WebElement bay = driver.findElement(By.xpath("(//android.widget.Button[contains(@text,'BAY')])[1]"));
+        int intStartY = 1500;
+        scrollTo(intStartY,intStartY+300);
+
+    }
+
+
+    //tc28
+
+    public void Dockworker_Load_shipement_from_Trailemanifest() throws InterruptedException {
+
+        driver.manage().timeouts().implicitlyWait(30,TimeUnit.SECONDS);
+        WebDriverWait wait = new WebDriverWait(driver,15);
+        YardManagement_Page yardManagement_page = new YardManagement_Page();
+        System.out.println("++++++++++++++++++++++++++++++++++++++");
+////        String usedTrailerNO = "705381";
+        String usedTrailerNO =   YardManagement_Page.usedTrailerNO;
+
+        try {
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//android.view.ViewGroup[4]/android.view.ViewGroup/android.widget.Button"))).click();
+        }catch(Exception e){
+            System.out.println("No Ackowledge");
+        }
+        //   System.out.println(doorNO);
+        Thread. sleep(2000);
+        try{
+            driver.findElement(By.xpath("//android.widget.TextView[contains(@text,'" + usedTrailerNO + "')]")).click();
+            //driver.findElement(By.xpath("//android.widget.TextView[contains(@text,'" + usedTrailerNO + "')]")).click();
+        }catch (Exception e){
+            driver.findElement(By.xpath("(//android.widget.TextView[contains(@text,'" + usedTrailerNO + "')])[1]")).click();
+        }
+        Thread.sleep(2000);
+        try {
+            driver.findElement(By.xpath("//android.widget.Button[@text='START']")).click();
+        }catch (Exception e){}
+        try{
+            driver.findElement(By.xpath("//android.widget.Button[@text='YES']")).click();
+        }catch (Exception e){
+        }
+        Thread.sleep(2000);
+        try{
+            driver.findElement(By.xpath("//android.widget.Button[@text='CONTINUE WORKING']")).click();
+        }catch (Exception e){
+        }
+
+        driver.findElement(By.xpath("//android.view.ViewGroup[6]/android.view.ViewGroup/android.widget.Button")).click();
+        Thread.sleep(2000);
+        try {
+            driver.findElement(By.xpath("//android.widget.TextView[@text='PRO#']/following::android.widget.TextView[6]")).click();
+        }catch (Exception e){}
+        Thread.sleep(2000);
+        driver.findElement(By.xpath("(//android.view.ViewGroup/android.view.ViewGroup[2]/android.widget.ImageButton)[5]")).click();
+        Thread.sleep(2000);
+
+        driver.findElement(By.xpath("//android.widget.TextView[@text='Move Shipment']")).click();
+        Thread.sleep(5000);
+
+        try{
+            driver.findElement(By.xpath("//android.widget.Button[@text='YES']")).click();
+        }catch (Exception e){}
+        Thread.sleep(2000);
+
+        try {
+            driver.findElement(By.xpath("//android.view.ViewGroup[1]/android.view.ViewGroup/android.widget.FrameLayout[3]")).click();
+            Thread.sleep(2000);
+        }catch (Exception e){
+            System.out.println("no button");
+        }
+        try {
+            driver.findElement(By.xpath("//android.view.ViewGroup[2]/android.view.ViewGroup/android.widget.FrameLayout[3]")).click();
+            Thread.sleep(2000);
+        }catch (Exception e){
+            System.out.println("no button");
+        }
+        try {
+            driver.findElement(By.xpath("//android.widget.Button[@text='DONE']")).click();
+            Thread.sleep(2000);
+        }catch (Exception e){
+            System.out.println("no DONE button");}
+        try {
+//            driver.findElement(By.xpath("//android.widget.Button[@text='DONE']")).click();
+            driver.findElement(By.xpath("//android.widget.Button[@text='DONE']")).click();
+            Thread.sleep(2000);
+        }catch (Exception e){
+            System.out.println("no DONE button");}
+        try {
+//            driver.findElement(By.xpath("//android.widget.Button[@text='DONE']")).click();
+            driver.findElement(By.xpath("//android.widget.Button[@text='DONE']")).click();
+            Thread.sleep(2000);
+        }catch (Exception e){
+            System.out.println("no DONE button");}
+        try {
+            driver.findElement(By.xpath("//android.widget.Button[@text='OK']")).click();
+            Thread.sleep(2000);
+        }catch (Exception e){
+            System.out.println("no DONE button");}
+        try {
+            driver.findElement(By.xpath("//android.widget.Button[@text='VIEW BARCODE']")).click();
+            Thread.sleep(2000);
+        }catch (Exception e){
+            System.out.println("no DONE button");}
+        try {
+            driver.findElement(By.xpath("//android.widget.Button[@text='DONE']")).click();
+            Thread.sleep(2000);
+        }catch (Exception e){
+            System.out.println("no DONE button");}
+
+        driver.findElement(By.xpath("//android.view.ViewGroup[2]/android.view.ViewGroup[2]/android.widget.Button")).click();
+        Thread.sleep(2000);
+
+        driver.findElement(By.xpath("(//android.view.ViewGroup/android.view.ViewGroup[1]/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup[2])[27]")).click();
+
+        Thread.sleep(2000);
+
+        driver.findElement(By.xpath("//android.widget.Button[@text='DONE']")).click();
+
+    }
+
+
+    public boolean isElementPresent(By by)
+    {
+        driver.manage().timeouts().implicitlyWait(0, TimeUnit.SECONDS);
+        try
+        {
+            driver.findElement(by);
+            return true;
+        }
+        catch(Exception e)
+        {
+            return false;
+        }
+        finally
+        {
+            driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
+        }
+    }
+
+    public static void ActKnowledgementButton(){
+        driver.manage().timeouts().implicitlyWait(20, TimeUnit.SECONDS);
+        WebDriverWait wait = new WebDriverWait(driver,40);
+        try {
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//android.view.ViewGroup/android.widget.Button[@text='ACKNOWLEDGE']")));
+            driver.findElement(By.xpath("//android.view.ViewGroup/android.widget.Button[@text='ACKNOWLEDGE']")).click();
+        }catch(Exception e){
+            System.out.println("No Ackowledge");
+        }
+
+    }
+       public void ValidateTrailer_OpenTrailer()
+       {
+        WebDriverWait wait = new WebDriverWait(driver,30);
+           wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//android.widget.TextView[contains(@text,'" + usedTrailerNO + "')]")));
+           String ActualTrailerNO = driver.findElement(By.xpath("//android.widget.TextView[contains(@text,'" + usedTrailerNO + "')]")).getText();
+           System.out.println("================= " + ActualTrailerNO + "+++++++++++++++++++++++");
+           Assert.assertTrue("Trailer No is displaying as expected", ActualTrailerNO.contains(usedTrailerNO));
+           ActKnowledgementButton();
+           driver.findElement(By.xpath("//android.widget.TextView[contains(@text,'" + usedTrailerNO + "')]")).click();
+           wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//android.view.ViewGroup[2]/android.view.ViewGroup[3]/android.widget.Button"))).click();
+            ActKnowledgementButton();
+          try {
+              wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//android.widget.Button[@text='SEAL MISSING']"))).click();
+          }catch (Exception e){
+              wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//android.widget.Button[@text='NO SEAL']"))).click();
+          }try {
+           wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//android.widget.Button[@text='OK']"))).click();
+       }catch (Exception e){}
+       }
+
+
+}

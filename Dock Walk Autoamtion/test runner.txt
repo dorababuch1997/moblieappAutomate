@@ -1,0 +1,49 @@
+
+package DockWalk_TestAutomation.runner;
+
+import DockWalk_TestAutomation.Report.CucumberReport;
+//import io.cu
+
+import io.cucumber.junit.Cucumber;
+import io.cucumber.junit.CucumberOptions;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.runner.RunWith;
+
+@RunWith(Cucumber.class)
+@CucumberOptions(
+
+		dryRun=false,
+		monochrome = true,
+		strict = true,
+
+	//plugin = { "pretty", "html:target/site/cucumber-pretty","json:target/cucumber.json", "rerun:target/rerun.txt" ,"com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter:"},
+	//	plugin = { "com.cucumber.listener.ExtentCucumberFormatter:target/cucumber-reports/report.html"},
+		plugin = { "pretty", "com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter:",
+				"rerun:target/failedrerun.txt"
+
+		},
+//		plugin = { "pretty", "html:target/site/cucumber-pretty","json:target/cucumber.json", "rerun:target/rerun.txt" },
+		features = { "classpath:features" },
+		glue = { "classpath:DockWalk_TestAutomation.glue", "classpath:DockWalk_TestAutomation.base"},
+
+		tags="@DockWalkRegressionScenarios1"
+
+		)
+public class RunnerClass {
+	
+	@BeforeClass
+	public static void createTestDataForSmoke() {
+	}
+
+	@AfterClass
+	public static void generateCucumberReport()
+	{
+//		CucumberReport cucumberReport = new CucumberReport();
+//		cucumberReport.generateReport();
+	}
+
+
+
+}
+

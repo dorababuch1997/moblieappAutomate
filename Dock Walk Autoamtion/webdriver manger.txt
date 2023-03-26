@@ -1,0 +1,153 @@
+package DockWalk_TestAutomation.managers;
+
+import java.awt.*;
+import java.sql.Driver;
+import java.util.concurrent.TimeUnit;
+
+import org.openqa.selenium.UnexpectedAlertBehaviour;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.ie.ElementScrollBehavior;
+import org.openqa.selenium.ie.InternetExplorerDriver;
+import org.openqa.selenium.ie.InternetExplorerOptions;
+import org.openqa.selenium.remote.DesiredCapabilities;
+
+import DockWalk_TestAutomation.enums.DriverType;
+import DockWalk_TestAutomation.enums.EnvironmentType;
+
+
+public class WebDriverManager {
+
+	private static WebDriverManager instance=null;
+	public static WebDriver driver;
+	public static DriverType driverType;
+	private static EnvironmentType environmentType;
+	private static final String CHROME_DRIVER_PROPERTY = "webdriver.chrome.driver";
+	private static final String IE_DRIVER_PROPERTY = "webdriver.ie.driver";
+
+
+	public WebDriverManager() {
+		FileReaderManager.getInstance().getLogFilePath().getLogFilePath();
+		driverType = FileReaderManager.getInstance().getConfigReader().getBrowser();
+		environmentType = FileReaderManager.getInstance().getConfigReader().getEnvironment();
+		
+	}
+	public static WebDriverManager getInstance(){
+        if(instance==null){
+            instance = new WebDriverManager();
+        }
+        return instance;
+    }
+
+	public WebDriver getDriver() {
+		if(driver == null) driver = createDriver();
+		return driver;
+	}
+
+	private WebDriver createDriver() {
+		   switch (environmentType) {	    
+	        case LOCAL : driver = createLocalDriver();
+	        	break;
+	        case REMOTE : driver = createRemoteDriver();
+	        	break;
+		   }
+		//   BaseTestCaseStep.driver = driver;
+		   return driver;
+	}
+
+	private WebDriver createRemoteDriver() {
+		throw new RuntimeException("RemoteWebDriver is not yet implemented");
+	}
+
+	public static WebDriver createLocalDriver(DriverType drivType) {
+		switch (drivType) {
+			case FIREFOX : driver = new FirefoxDriver();
+				break;
+			case CHROME :
+				ChromeOptions option = new ChromeOptions();
+				option.addArguments("--disable-notifications");
+				option.addArguments("disable-infobars");
+				option.addArguments("start-maximized");
+				option.addArguments("--incognito");
+				option.addArguments("--test-type");
+				DesiredCapabilities chrome = DesiredCapabilities.chrome();
+				chrome.setJavascriptEnabled(true);
+				chrome.setCapability(ChromeOptions.CAPABILITY, option);
+				System.setProperty(CHROME_DRIVER_PROPERTY, FileReaderManager.getInstance().getConfigReader().getDriverPath());
+				driver = new ChromeDriver(option);
+				break;
+			case INTERNETEXPLORER :
+				DesiredCapabilities capabilities = DesiredCapabilities.internetExplorer();
+				capabilities.setCapability(InternetExplorerDriver.INTRODUCE_FLAKINESS_BY_IGNORING_SECURITY_DOMAINS, true);
+				capabilities.setCapability(InternetExplorerDriver.IE_SWITCHES, "-private");
+				capabilities.setCapability(InternetExplorerDriver.ELEMENT_SCROLL_BEHAVIOR,ElementScrollBehavior.BOTTOM);
+				capabilities.setCapability(InternetExplorerDriver.IE_ENSURE_CLEAN_SESSION, true);
+				capabilities.setCapability(InternetExplorerDriver.INTRODUCE_FLAKINESS_BY_IGNORING_SECURITY_DOMAINS,true);
+				capabilities.setCapability(InternetExplorerDriver.UNEXPECTED_ALERT_BEHAVIOR,UnexpectedAlertBehaviour.IGNORE);
+				capabilities.setCapability(InternetExplorerDriver.REQUIRE_WINDOW_FOCUS,true);
+				capabilities.setCapability("ignoreProtectedModeSettings", true);
+				capabilities.setCapability(InternetExplorerDriver.IGNORE_ZOOM_SETTING,true);
+				capabilities.setJavascriptEnabled(true);
+				System.setProperty(IE_DRIVER_PROPERTY, FileReaderManager.getInstance().getConfigReader().getIEDriverPath());
+				driver = new InternetExplorerDriver(capabilities);
+				break;
+		}
+
+		if(FileReaderManager.getInstance().getConfigReader().getBrowserWindowSize())
+			driver.manage().window().maximize();
+		driver.manage().timeouts().implicitlyWait(FileReaderManager.getInstance().getConfigReader().getImplicitlyWait(), TimeUnit.SECONDS);
+		return driver;
+	}
+
+	@SuppressWarnings("deprecation")
+	private WebDriver createLocalDriver() {
+        switch (driverType) {	    
+        case FIREFOX : driver = new FirefoxDriver();
+	    	break;
+        case CHROME : 
+        	ChromeOptions option = new ChromeOptions();
+        	option.addArguments("--disable-notifications");
+    		option.addArguments("disable-infobars");
+    		option.addArguments("start-maximized");
+    		option.addArguments("--incognito");
+    		option.addArguments("--test-type");
+    		option.addArguments("--remote-debugging-port=9222");
+    		DesiredCapabilities chrome = DesiredCapabilities.chrome();
+    		chrome.setJavascriptEnabled(true);
+    		chrome.setCapability(ChromeOptions.CAPABILITY, option);
+        	System.setProperty(CHROME_DRIVER_PROPERTY, FileReaderManager.getInstance().getConfigReader().getDriverPath());
+        	driver = new ChromeDriver(option);
+    		break;
+        case INTERNETEXPLORER : 
+        	DesiredCapabilities capabilities = DesiredCapabilities.internetExplorer();
+        	capabilities.setCapability(InternetExplorerDriver.INTRODUCE_FLAKINESS_BY_IGNORING_SECURITY_DOMAINS, true);
+        	capabilities.setCapability(InternetExplorerDriver.IE_SWITCHES, "-private");
+        	capabilities.setCapability(InternetExplorerDriver.ELEMENT_SCROLL_BEHAVIOR,ElementScrollBehavior.BOTTOM);
+        	capabilities.setCapability(InternetExplorerDriver.IE_ENSURE_CLEAN_SESSION, true);
+        	capabilities.setCapability(InternetExplorerDriver.INTRODUCE_FLAKINESS_BY_IGNORING_SECURITY_DOMAINS,true);
+        	capabilities.setCapability(InternetExplorerDriver.UNEXPECTED_ALERT_BEHAVIOR,UnexpectedAlertBehaviour.IGNORE);
+        	capabilities.setCapability(InternetExplorerDriver.REQUIRE_WINDOW_FOCUS,true);
+        	capabilities.setCapability("ignoreProtectedModeSettings", true);
+        	capabilities.setCapability(InternetExplorerDriver.IGNORE_ZOOM_SETTING,true);
+        	capabilities.setJavascriptEnabled(true); 
+        	System.setProperty(IE_DRIVER_PROPERTY, FileReaderManager.getInstance().getConfigReader().getIEDriverPath());   
+        	driver = new InternetExplorerDriver(capabilities);
+    		break;
+        }
+
+        if(FileReaderManager.getInstance().getConfigReader().getBrowserWindowSize()) 
+        	driver.manage().window().maximize();
+
+        driver.manage().timeouts().implicitlyWait(FileReaderManager.getInstance().getConfigReader().getImplicitlyWait(), TimeUnit.SECONDS);
+		return driver;
+	}	
+
+	public void closeDriver() {
+		driver.close();
+		driver.quit();
+		driver = null;//added
+	}
+
+}

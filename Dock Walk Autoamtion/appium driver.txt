@@ -1,0 +1,59 @@
+package DockWalk_TestAutomation.managers;
+
+import io.appium.java_client.AppiumDriver;
+import org.openqa.selenium.remote.DesiredCapabilities;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.concurrent.TimeUnit;
+
+public class AppiumDriverManager {
+
+	public static AppiumDriver driver = null;
+
+	private static AppiumDriverManager instance=null;
+
+
+	public static AppiumDriverManager getInstance(){
+		if(instance==null){
+			instance = new AppiumDriverManager();
+		}
+		return instance;
+	}
+	public AppiumDriver getDriver() throws Exception {
+		if(driver == null) driver = CreateAppiumDriver();
+		driver.activateApp(ECD_HH.QA);
+		return driver;
+	}
+	public static AppiumDriver CreateAppiumDriver() throws Exception {
+
+		DesiredCapabilities cap = new DesiredCapabilities();
+		cap.setCapability(deviceName,google pixel);
+		cap.setCapability(automationName,uiautomator2);
+		cap.setCapability(udid, emulator-5554);
+		cap.setCapability(platformName, Android);
+		cap.setCapability(platformVersion, 9);
+		cap.setCapability(appPackage, ECD_HH.QA);
+		cap.setCapability(appActivity, crc6441d460bb6537cc3f.MainActivity);
+		cap.setCapability(newCommandTimeout, 45000);
+		cap.setCapability(testdroid_testTimeout, 1200);
+
+		try {
+			driver = new AppiumDriver(new URL(http0.0.0.04723wdhub), cap);
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		}
+		System.out.println(SERVER CONFIG DONE);
+		driver.manage().timeouts().implicitlyWait(20, TimeUnit.SECONDS);
+		return driver;
+	}
+
+	public  void closeDriver() {
+		try {
+			driver.terminateApp(ECD_HH.QA);
+		}
+		catch (Exception e){
+
+		}
+	}
+
+}

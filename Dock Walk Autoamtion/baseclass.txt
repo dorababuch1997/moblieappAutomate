@@ -1,0 +1,197 @@
+package DockWalk_TestAutomation.base;
+
+import DockWalk_TestAutomation.managers.AppiumDriverManager;
+import DockWalk_TestAutomation.pages.HandleDevice;
+import DockWalk_TestAutomation.utilities.screenshot;
+import io.appium.java_client.AppiumDriver;
+import io.appium.java_client.windows.WindowsDriver;
+import io.github.bonigarcia.wdm.WebDriverManager;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.util.Iterator;
+import java.util.Properties;
+import java.util.Set;
+
+import io.cucumber.java.Before;
+import io.cucumber.java.After;
+
+import io.cucumber.java.Scenario;
+import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
+import org.openqa.selenium.*;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.os.WindowsUtils;
+
+//import DockWalk_TestAutomation.managers.WebDriverManager;
+import DockWalk_TestAutomation.utilities.FilePath;
+
+//import cucumber.api.Scenario;
+//import cucumber.api.java.After;
+//import cucumber.api.java.Before;
+import io.cucumber.junit.Cucumber.*;
+import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+
+public class BaseClass {
+
+	public Properties CONFIG;
+
+	public static Scenario scenario;
+
+	public static WebDriver driver;
+
+
+	public static WindowsDriver WinDriver = null;
+	private Logger oLog = Logger.getLogger(BaseClass.class);
+	private final String propertyFilePath = FilePath.configFilePath;
+	public static Properties properties;
+	public static AppiumDriver appiumDriver = AppiumDriverManager.driver;
+
+
+
+	public static String DockWalkURL = "https://wqpndw40.upgf.com:9443/login";
+	public static String username = "dph7kcg";
+	public static String txbxUserNamebyXpath = "//input[@placeholder='Type your User Name']";
+	public static String password = "Alph@@123";
+	public static String txbxPasswordbyXpath = "//input[@placeholder='Type your password']";
+	public static String dropdwnTerminalbyXpath = "//div[contains(@class,'auth-source select')]//select[1]";
+	public static String btnLoginbyTagname = "button";
+	
+	
+	@Before
+
+
+	public void before(Scenario scenerio) throws Throwable {
+		System.out.println("********************** before ******************");
+		if (driver == null){
+			WebDriverManager.chromedriver().proxyUser("LRQ7YDZ").proxyPass("Upsfreight2022!").proxy("proxy.ups.com:8080").setup();
+//
+
+			driver = new ChromeDriver();
+			driver.manage().deleteAllCookies();
+			ChromeOptions option = new ChromeOptions();
+			option.addArguments("--disable-notifications");
+			option.addArguments("disable-infobars");
+			option.addArguments("start-maximized");
+			option.addArguments("--incognito");
+			option.addArguments("--test-type");
+			option.addArguments("--remote-debugging-port=9222");
+			DesiredCapabilities chrome = DesiredCapabilities.chrome();
+			chrome.setJavascriptEnabled(true);
+			chrome.setCapability(ChromeOptions.CAPABILITY, option);
+			properties = BaseClass.PropertiesFIle(propertyFilePath);
+
+			driver.get(properties.getProperty("DockWalk_URL"));
+
+
+			driver.manage().window().maximize();
+
+			WebDriverWait wait = new WebDriverWait(driver,30);
+			wait.until(ExpectedConditions.visibilityOfElementLocated(By.tagName(btnLoginbyTagname)));
+//Emter username and password
+			driver.findElement(By.xpath(txbxUserNamebyXpath)).sendKeys(properties.getProperty("username"));
+			driver.findElement(By.xpath(txbxPasswordbyXpath)).sendKeys(properties.getProperty("password"));
+		//Select terminal
+					Select terminal = new Select(driver.findElement(By.xpath(dropdwnTerminalbyXpath)));
+			terminal.selectByVisibleText(properties.getProperty("terminal"));
+			driver.findElement(By.tagName(btnLoginbyTagname)).click();
+			Thread.sleep(15000);
+		}
+
+		else {
+			driver.manage().deleteAllCookies();
+			JavascriptExecutor js = (JavascriptExecutor)driver;
+			js.executeScript("window.open('https://wqpndw40.upgf.com:9443/home', '_blank');");
+			String mainWindowHandle = driver.getWindowHandle();
+			Set<String> allWindowHandles = driver.getWindowHandles();
+			Iterator<String> iterator = allWindowHandles.iterator();
+			while (iterator.hasNext()) {
+				String ChildWindow = iterator.next();
+				if (!mainWindowHandle.equalsIgnoreCase(ChildWindow)) {
+					driver.close();
+					driver.switchTo().window(ChildWindow);
+				}
+
+			}
+
+			}
+
+		System.out.println(FilePath.logFilePath);
+		File f1=new File(FilePath.logFilePath);
+		PropertyConfigurator.configure(FilePath.logFilePath);
+		this.scenario=scenerio;
+		oLog.info("scenario name:"+scenerio.getName());
+		System.out.println("scenario name:"+scenario.getName());
+		appiumDriver =  AppiumDriverManager.driver;
+
+	}
+
+	@After
+	public void after() throws InterruptedException
+
+	{
+
+
+
+
+		 //added
+		System.out.println("********************** after ******************");
+		if (scenario.isFailed()) {
+			try {
+				screenshot.WebCapture(driver, "Webfailedscreenshot");
+				screenshot.AppiumCapture(appiumDriver, "Androidfailedscreenshot");
+			} catch (Exception e) {
+				System.out.println("Error While Taking Screenshot "+ e.getMessage());
+				e.printStackTrace();
+			}
+		}
+
+//		killDriver();
+		AppiumDriverManager.getInstance().closeDriver();
+//		WebDriverManager.getInstance().closeDriver();
+		System.out.println("********************** sleeping ******************");
+		Thread.sleep(3000);
+
+	}
+	@SuppressWarnings("deprecation")
+	public static void killDriver() throws InterruptedException
+	{
+		try
+		{
+//			WebDriverManager.getInstance().closeDriver();
+////					WindowsUtils.killByName("chromedriver.exe");
+//			Runtime.getRuntime().exec("taskkill /F /IM chromedriver.exe /T");
+
+		}
+		catch(Exception e)
+		{
+			Thread.sleep(2000);
+		}
+	}
+	public static Properties UCP_LOADPropertiesFIle(String PropertiesFIlepath) throws Exception
+	{
+		System.out.println("properties file path: in base class:" + PropertiesFIlepath);
+		BufferedReader reader;
+		reader = new BufferedReader(new FileReader(PropertiesFIlepath));
+		properties = new Properties();
+		properties.load(reader);
+		return properties;
+	}
+	
+	public static Properties PropertiesFIle(String PropertiesFIlepath) throws Exception
+	{
+		System.out.println("properties file path: in base class:" + PropertiesFIlepath);
+		BufferedReader reader;
+		reader = new BufferedReader(new FileReader(PropertiesFIlepath));
+		properties = new Properties();
+		properties.load(reader);
+		return properties;
+	}
+	
+}
